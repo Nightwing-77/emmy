@@ -137,7 +137,7 @@ class Emitter(Builder, Integers, Control, Floats, Memory, Reductions):
         if self.pool is not None:
             align = max(16, *(s.align or 0 for s in k.smem_buffers.values()))
             head.append(f".extern .shared .align {align} .b8 _smem_pool[];")
-        # The block size, as ``__launch_bounds__`` tells nvcc: ptxas then budgets registers for exactly this many threads.
+        # The block size, as ``__launch_bounds__`` tells nvcc: ptxas then sets its register budget for exactly this many threads.
         head += [f".visible .entry {name}(", ",\n".join(params), f") .maxntid {self.block_threads}, 1, 1", "{"]
         head += [f"\t.reg {t} %{p}<{self.counts[p] + 1}>;" for p, t in _REG_TYPES.items()]
         return "\n".join([*head, *self.decls, *self.lines, "\tret;", "}", ""])

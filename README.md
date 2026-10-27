@@ -39,9 +39,9 @@ Each Kernel IR statement `Foo` is translated by one method, `s_Foo`, in the file
   it. Constants fold, the same index is computed once, and the constant part of an address becomes the instruction's
   offset (`[%rd1+512]`).
 - **Unrolling.** Innermost loops run 4 copies per trip (or fully, when the IR asks), so several loads are in flight.
-- **Launch bounds.** The header declares the block size (`.maxntid 128, 1, 1`), as `__launch_bounds__` does for nvcc.
-  Without it ptxas must allow for 1024 threads and caps each thread at 64 registers; with it, attention a02 uses 80
-  registers instead of 56 and runs 33% faster.
+- **Launch bounds.** The header declares the block size (`.maxntid 32, 1, 1`), as `__launch_bounds__` does for nvcc.
+  Without it ptxas picks a default register budget; told that attention a02's block is one warp of 32 threads, it
+  gives each thread 80 registers instead of 56 (nvcc's kernel: 77), and the kernel runs 33% faster.
 - **Memory instructions.** Read-only inputs use `ld.global.nc`; neighbouring elements load as one `v2`/`v4` vector.
 - **Accurate math.** `exp` is the same 9-instruction sequence CUDA's `expf` uses; division and square root round
   exactly (`div.rn`, `sqrt.rn`).
